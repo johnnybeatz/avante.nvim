@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -x
 
 REPO_OWNER="yetone"
 REPO_NAME="avante.nvim"
@@ -9,7 +10,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
 # Set the target directory to clone the artifact
 TARGET_DIR="${SCRIPT_DIR}/build"
-
+TEMP_FILE="${TARGET_DIR}/temp.tar.gz"
 # Get the artifact download URL based on the platform and Lua version
 case "$(uname -s)" in
 Linux*)
@@ -67,15 +68,17 @@ if [ ! -d "$TARGET_DIR" ]; then
 fi
 
 if test_command "gh" && test_gh_auth; then
-    gh release download --repo "github.com/$REPO_OWNER/$REPO_NAME" --pattern "*$ARTIFACT_NAME_PATTERN*" | tar -zxv -C "$TARGET_DIR"
+    echo "Using gh release download command"
+    gh release download --repo "github.com/$REPO_OWNER/$REPO_NAME" --pattern "*$ARTIFACT_NAME_PATTERN*" > "$TEMP_FILE"
+    tar -zxv -C "$TARGET_DIR" -f "$TEMP_FILE"
 else
     # Get the artifact download URL
+    echo "Using curl command"
     ARTIFACT_URL="https://github.com/$REPO_OWNER/$REPO_NAME/releases/latest/download/*$ARTIFACT_NAME_PATTERN*"
 
-    set -x
 
     mkdir -p "$TARGET_DIR"
 
-    curl -L "$ARTIFACT_URL" | tar -zxv -C "$TARGET_DIR"
+    curl -L "$ARTIFACT_URL" -o "$TEMP_FILE"
+    tar -zxv -C "$TARGET_DIR" -f "$TEMP_FILE"
 fi
-
