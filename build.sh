@@ -69,7 +69,7 @@ fi
 
 if test_command "gh" && test_gh_auth; then
     echo "Using gh release download command"
-    gh release download --repo "github.com/$REPO_OWNER/$REPO_NAME" --pattern "*$ARTIFACT_NAME_PATTERN*" --output "$TEMP_FILE"
+    gh release download --repo "github.com/$REPO_OWNER/$REPO_NAME" --pattern "*$ARTIFACT_NAME_PATTERN*"  > "$TEMP_FILE"
     tar -zxv -C "$TARGET_DIR" -f "$TEMP_FILE"
 else
     # Get the artifact download URL
