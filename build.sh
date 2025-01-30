@@ -63,13 +63,14 @@ test_gh_auth() {
     fi
 }
 
-if [ ! -d "$TARGET_DIR" ]; then
-    mkdir -p "$TARGET_DIR"
+if [ -d "$TARGET_DIR" ]; then
+    rm -rf "$TARGET_DIR"
 fi
+mkdir -p "$TARGET_DIR"
 
 if test_command "gh" && test_gh_auth; then
     echo "Using gh release download command"
-    gh release download --repo "github.com/$REPO_OWNER/$REPO_NAME" --pattern "*$ARTIFACT_NAME_PATTERN*"  > "$TEMP_FILE"
+    gh release download --repo "github.com/$REPO_OWNER/$REPO_NAME" --pattern "*$ARTIFACT_NAME_PATTERN*"  --dir "$TARGET_DIR"
     tar -zxv -C "$TARGET_DIR" -f "$TEMP_FILE"
 else
     # Get the artifact download URL
